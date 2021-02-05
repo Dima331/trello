@@ -4,10 +4,10 @@ import modal from './modal/reducer';
 import column from './columns/reducer';
 
 const rootReducer = combineReducers({
-    notes,
-    modal,
-    column
+  notes,
+  modal,
+  column,
 });
 
-export type RootState = ReturnType<typeof rootReducer>;
+export type StoreState = ReturnType<typeof rootReducer>;
 export default rootReducer;

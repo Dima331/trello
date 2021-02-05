@@ -1,24 +1,13 @@
+import { ActionType } from 'typesafe-actions';
+import * as columnsActions from './actions';
+
 export interface Column {
-    id: number;
+  id: number;
 }
 
-export interface Columns {
-    columns: Column[]
+export enum ColumnsTypes {
+  ADD_COLUMN = '@column/ADD_COLUMN',
+  DELETE_COLUMN = '@column/DELETE_COLUMN',
 }
 
-export const ADD_COLUMN = '@column/ADD_COLUMN';
-export const DELETE_COLUMN = '@column/DELETE_COLUMN';
-
-interface AddColumn {
-    type: typeof ADD_COLUMN;
-    payload: { column: Column };
-}
-
-interface DeleteColumn {
-    type: typeof DELETE_COLUMN;
-    payload: { column: Column };
-}
-
-export type ColumnActionsTypes =
-    | AddColumn
-    | DeleteColumn;
+export type ColumnsActions = ActionType<typeof columnsActions>;

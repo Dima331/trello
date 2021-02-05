@@ -1,3 +1,4 @@
-import store from './createStore';
+import { createStore } from 'redux';
+import reducer from './modules/combineReducers';
 
-export default store;
+export default createStore(reducer);

@@ -1,57 +1,49 @@
-import { Column } from '../columns/types';
 import {
-    ModalActionsTypes,
-    Modal,
-    OPEN_MODAL,
-    CLOSE_MODAL,
-    ACTIVE_COLUMN_MODAL
+  ModalActions,
+  Note,
+  ModalTypes,
 } from './types';
 
-const initialState: Modal = {
-    state: false,
-    note: {
-        id: 0,
-        title: '',
-        description: '',
-        columnId: 1
-    },
-    columnId: undefined,
+export interface ModalType {
+  isModalOpen?: boolean;
+  note?: Note;
+  columnId?: number;
+}
+
+const initialState: ModalType = {
+  isModalOpen: false,
+  note: {
+    id: 0,
+    title: '',
+    description: '',
+    columnId: 1,
+    color: '',
+  },
+  columnId: undefined,
 };
 
 export default function notesReducer(
-    state = initialState,
-    action: ModalActionsTypes
-): Modal {
-    switch (action.type) {
-        case OPEN_MODAL:
-            if (action.payload) {
-                return {
-                    state: true,
-                    note: action.payload.note
-                }
-            }
-
-            return {
-                state: true
-            }
-        case CLOSE_MODAL: {
-            return {
-                state: false
-            }
-        }
-        case ACTIVE_COLUMN_MODAL: {
-            if (action.payload) {
-                return {
-                    state: true,
-                    columnId: action.payload.column
-                }
-            }
-            return {
-                state: true
-            }
-        }
-
-        default:
-            return state;
+  state = initialState,
+  action: ModalActions,
+): ModalType {
+  switch (action.type) {
+    case ModalTypes.EDIT_OPEN_MODAL:
+      return {
+        isModalOpen: true,
+        note: action.payload.note,
+      };
+    case ModalTypes.CLOSE_MODAL: {
+      return {
+        isModalOpen: false,
+      };
     }
+    case ModalTypes.ADD_NOTE_MODAL: {
+      return {
+        isModalOpen: true,
+        columnId: action.payload.column,
+      };
+    }
+    default:
+      return state;
+  }
 }

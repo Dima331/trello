@@ -1,39 +1,18 @@
+import { ActionType } from 'typesafe-actions';
+import * as modalActions from './actions';
+
 export interface Note {
-    id: number;
-    title: string;
-    description: string;
-    columnId?: number;
+  id: number;
+  title: string;
+  description: string;
+  columnId?: number;
+  color: string;
 }
 
-export interface Modal {
-    state?: boolean;
-    note?: Note;
-    columnId?: IColumn;
+export enum ModalTypes {
+  EDIT_OPEN_MODAL = '@modal/EDIT_OPEN_MODAL',
+  CLOSE_MODAL = '@modal/CLOSE_MODAL',
+  ADD_NOTE_MODAL = '@modal/ADD_NOTE_MODAL',
 }
 
-export interface IColumn {
-    columnId: number;
-}
-
-export const OPEN_MODAL = '@modal/OPEN_MODAL';
-export const CLOSE_MODAL = '@modal/CLOSE_MODAL';
-export const ACTIVE_COLUMN_MODAL = '@modal/ACTIVE_COLUMN_MODAL';
-
-interface OpenModal {
-    type: typeof OPEN_MODAL;
-    payload?: { note: Note };
-}
-
-interface CloseModal {
-    type: typeof CLOSE_MODAL;
-}
-
-interface ActiveColumnModal {
-    type: typeof ACTIVE_COLUMN_MODAL;
-    payload?: { column: IColumn };
-}
-
-export type ModalActionsTypes =
-    | OpenModal
-    | CloseModal
-    | ActiveColumnModal;
+export type ModalActions = ActionType<typeof modalActions>;

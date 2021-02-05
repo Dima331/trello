@@ -1,34 +1,17 @@
+import { action } from 'typesafe-actions';
 import {
-    ModalActionsTypes,
-    Note,
-    OPEN_MODAL,
-    CLOSE_MODAL,
-    ACTIVE_COLUMN_MODAL,
-    IColumn,
+  Note,
+  ModalTypes,
 } from './types';
 
-export function openModal(note?: Note): ModalActionsTypes {
-    if (note) {
-        return {
-            type: OPEN_MODAL,
-            payload: { note },
-        };
-    }
-    return {
-        type: OPEN_MODAL,
-    };
+export const editOpenModal = (note?: Note) => {
+  return action(ModalTypes.EDIT_OPEN_MODAL, { note });
+};
+
+export function closeModal() {
+  return action(ModalTypes.CLOSE_MODAL);
 }
 
-export function closeModal(): ModalActionsTypes {
-    return {
-        type: CLOSE_MODAL,
-    };
+export function addNoteModal(column: number) {
+  return action(ModalTypes.ADD_NOTE_MODAL, { column });
 }
-
-export function activeColumnModal(column: IColumn): ModalActionsTypes {
-    return {
-        type: ACTIVE_COLUMN_MODAL,
-        payload: { column },
-    };
-}
-

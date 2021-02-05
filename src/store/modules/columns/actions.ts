@@ -1,21 +1,13 @@
+import { action } from 'typesafe-actions';
 import {
-    ColumnActionsTypes,
-    Column,
-    ADD_COLUMN,
-    DELETE_COLUMN,
-  } from './types';
-  
-  export function addColumn(column: Column): ColumnActionsTypes {
-    return {
-      type: ADD_COLUMN,
-      payload: { column },
-    };
-  }
-  
-  export function deleteColumn(column: Column): ColumnActionsTypes {
-    return {
-      type: DELETE_COLUMN,
-      payload: { column },
-    };
-  }
-  
+  Column,
+  ColumnsTypes,
+} from './types';
+
+export function addColumn(column: Column) {
+  return action(ColumnsTypes.ADD_COLUMN, { column });
+}
+
+export function deleteColumn(column: Column) {
+  return action(ColumnsTypes.DELETE_COLUMN, { column });
+}

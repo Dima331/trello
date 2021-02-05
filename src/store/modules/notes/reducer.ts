@@ -1,57 +1,59 @@
 import {
-  NotesState,
-  NotesActionsTypes,
-  CREATE_NOTE,
-  UPDATE_NOTE,
-  DELETE_NOTE,
-  DELETE_NOTES_IN_COLUMN,
+  NotesActions,
+  Note,
+  NotesTypes,
 } from './types';
 
-const initialState: NotesState = {
+export interface NotesType {
+  data: Note[];
+}
+
+const initialState: NotesType = {
   data: [
     {
       id: 1,
       title: '111',
       description: '111',
-      columnId: 1
-    }
+      columnId: 1,
+      color: 'green',
+    },
   ],
 };
 
 export default function notesReducer(
   state = initialState,
-  action: NotesActionsTypes
-): NotesState {
+  action: NotesActions,
+): NotesType {
   switch (action.type) {
-    case CREATE_NOTE:
+    case NotesTypes.CREATE_NOTE:
       return {
         data: [...state.data, action.payload.note],
       };
-    case UPDATE_NOTE: {
-      const data = state.data.map(note => {
+    case NotesTypes.UPDATE_NOTE: {
+      const data = state.data.map((note) => {
+        console.log(note);
         if (note.id === action.payload.note.id) {
-
           return {
             ...action.payload.note,
-            columnId: note.columnId
-          }
+            columnId: note.columnId,
+          };
         }
 
-        return note
+        return note;
       });
 
       return { data };
     }
-    case DELETE_NOTE: {
+    case NotesTypes.DELETE_NOTE: {
       const data = state.data.filter(
-        note => note.id !== action.payload.note.id
+        (note) => note.id !== action.payload.note.id,
       );
 
       return { data };
     }
-    case DELETE_NOTES_IN_COLUMN: {
+    case NotesTypes.DELETE_NOTES_IN_COLUMN: {
       const data = state.data.filter(
-        note => note.columnId !== action.payload.columnId
+        (note) => note.columnId !== action.payload.columnId,
       );
 
       return { data };

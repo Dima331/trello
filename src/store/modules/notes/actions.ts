@@ -1,36 +1,21 @@
+import { action } from 'typesafe-actions';
 import {
-  NotesActionsTypes,
-  Notes,
-  CREATE_NOTE,
-  UPDATE_NOTE,
-  DELETE_NOTE,
-  DELETE_NOTES_IN_COLUMN,
+  Note,
+  NotesTypes,
 } from './types';
 
-export function createNote(note: Notes): NotesActionsTypes {
-  return {
-    type: CREATE_NOTE,
-    payload: { note },
-  };
+export function createNote(note: Note) {
+  return action(NotesTypes.CREATE_NOTE, { note });
 }
 
-export function updateNote(note: Notes): NotesActionsTypes {
-  return {
-    type: UPDATE_NOTE,
-    payload: { note },
-  };
+export function updateNote(note: Note) {
+  return action(NotesTypes.UPDATE_NOTE, { note });
 }
 
-export function deleteNote(note: Notes): NotesActionsTypes {
-  return {
-    type: DELETE_NOTE,
-    payload: { note },
-  };
+export function deleteNote(note: Note) {
+  return action(NotesTypes.DELETE_NOTE, { note });
 }
 
-export function deleteNoteInColumn(columnId: number): NotesActionsTypes {
-  return {
-    type: DELETE_NOTES_IN_COLUMN,
-    payload: { columnId },
-  };
+export function deleteNoteInColumn(columnId: number) {
+  return action(NotesTypes.DELETE_NOTES_IN_COLUMN, { columnId });
 }
