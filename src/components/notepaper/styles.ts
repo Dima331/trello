@@ -8,6 +8,11 @@ const useStyles = makeStyles({
   media: {
     height: 140,
   },
+  focus: {
+    '&:focus': {
+      border: '4px solid #000',
+    },
+  },
 });
 
 export default useStyles;

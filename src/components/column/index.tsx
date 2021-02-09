@@ -26,16 +26,20 @@ const Column: React.FC<ColumnProps> = ({
     dispatch(deleteColumn({ id: columnId }));
   }, [dispatch, columnId]);
 
-  const renderNotes = useCallback(() => (
-    notes
-      .filter((note) => note.columnId === columnId)
-      .map((note) => (
-        <Notepaper
-          key={note.id}
-          note={note}
-        />
-      ))
-  ), [notes, columnId]);
+  const renderNotes = useCallback(() => {
+    if (notes) {
+      return notes
+        .filter((note) => note.columnId === columnId)
+        .map((note) => (
+          <Notepaper
+            key={note.id}
+            note={note}
+          />
+        ));
+    }
+
+    return null;
+  }, [notes, columnId]);
 
   const openHandler = (): void => {
     dispatch(addNoteModal(columnId));

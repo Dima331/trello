@@ -9,6 +9,7 @@ export interface Note {
   description: string;
   color: string,
   columnId?: number;
+  active?: boolean;
 }
 
 export enum NotesTypes{
@@ -16,4 +17,8 @@ export enum NotesTypes{
   UPDATE_NOTE = '@note/UPDATE_NOTE',
   DELETE_NOTE = '@note/DELETE_NOTE',
   DELETE_NOTES_IN_COLUMN = '@note/DELETE_NOTES_IN_COLUMN',
+  GET_NOTES = '@note/GET_NOTES',
+  ACTIVE_NOTE = '@note/ACTIVE_NOTE',
+  SHIFT_LEFT_RIGHT_NOTE = '@note/SHIFT_LEFT_RIGHT_NOTE',
+  SHIFT_UP_DOWN_NOTE = '@note/SHIFT_UP_DOWN_NOTE',
 }

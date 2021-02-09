@@ -23,26 +23,24 @@ const DashBoard: React.FC = (): React.ReactElement => {
   };
 
   return (
-    <>
-      <Container maxWidth="md">
-        <div className={classes.containerBoard}>
-          {columns && columns.map((column) => (
-            <div key={column.id}>
-              <li>
-                <Column columnId={column.id} />
-              </li>
-            </div>
-          ))}
-          <Button
-            size="small"
-            color="primary"
-            onClick={() => addColumnHandler()}
-          >
-            Add column
-          </Button>
-        </div>
-      </Container>
-    </>
+    <Container maxWidth="md">
+      <div className={classes.containerBoard}>
+        {columns && columns.map((column) => (
+          <div key={column.id}>
+            <li>
+              <Column columnId={column.id} />
+            </li>
+          </div>
+        ))}
+        <Button
+          size="small"
+          color="primary"
+          onClick={() => addColumnHandler()}
+        >
+          Add column
+        </Button>
+      </div>
+    </Container>
   );
 };
 

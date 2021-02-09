@@ -25,12 +25,10 @@ const Form: React.FC = (): React.ReactElement => {
   const [description, setDescription] = useState<string>('test');
   const [title, setTitle] = useState<string>('test');
 
-  const { notes } = useSelector(FormSelector);
-  const { note } = useSelector(FormSelector);
-  const { columnId } = useSelector(FormSelector);
+  const { notes, note, columnId } = useSelector(FormSelector);
 
   useEffect(() => {
-    if (note && note.id !== 0) {
+    if (note && note?.id !== 0) {
       setTitle(note.title);
       setDescription(note.description);
       setActivColor(note.color);
@@ -38,7 +36,17 @@ const Form: React.FC = (): React.ReactElement => {
   }, [note]);
 
   const getLastId = useCallback((): number => {
-    return notes[notes.length - 1] ? notes[notes.length - 1].id + 1 : 1;
+    let maxId = 1;
+
+    notes.forEach((noteItem) => {
+      if (noteItem.id > maxId) {
+        maxId = noteItem.id;
+      }
+    });
+
+    maxId += 1;
+
+    return maxId;
   }, [notes]);
 
   const addNote = useCallback((): void => {
@@ -51,6 +59,7 @@ const Form: React.FC = (): React.ReactElement => {
           description,
           columnId,
           color: activColor,
+          active: false,
         }),
       );
     }
@@ -65,6 +74,7 @@ const Form: React.FC = (): React.ReactElement => {
           title,
           description,
           color: activColor,
+          active: false,
         }),
       );
     }

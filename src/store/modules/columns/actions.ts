@@ -11,3 +11,7 @@ export function addColumn(column: Column) {
 export function deleteColumn(column: Column) {
   return action(ColumnsTypes.DELETE_COLUMN, { column });
 }
+
+export function getColumns() {
+  return action(ColumnsTypes.GET_COLUMNS);
+}
