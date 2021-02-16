@@ -1,56 +1,46 @@
-import { setLocalStorage, getLocalStorage } from '../../../helpers/localStorageHelper';
+import { getLastIdColumns } from '../../../helpers/actionIdHelper';
+import { Column } from '../../../types/Columns';
 
 import {
   ColumnsActions,
-  Column,
   ColumnsTypes,
 } from './types';
 
-interface ColumnsType {
-  columns: Column[]
+interface ColumnsState {
+  columns: Column[];
+  isLoadingColumns?: boolean;
 }
 
-const initialState: ColumnsType = {
+const initialState: ColumnsState = {
   columns: [
     {
       id: 1,
     },
   ],
+  isLoadingColumns: true,
 };
 
-export default function notesReducer(
+export default function columnReducer(
   state = initialState,
   action: ColumnsActions,
-): ColumnsType {
+): ColumnsState {
   switch (action.type) {
-    case ColumnsTypes.ADD_COLUMN:
-      setLocalStorage('columns', [...state.columns, action.payload.column]);
+    case ColumnsTypes.ADD_COLUMN: {
+      const lastId = getLastIdColumns(state.columns);
 
       return {
-        columns: [...state.columns, action.payload.column],
+        columns: [...state.columns, {
+          id: lastId,
+        }],
       };
+    }
     case ColumnsTypes.DELETE_COLUMN: {
       const columns = state.columns.filter(
         (column) => (
           column.id !== action.payload.column.id),
       );
 
-      setLocalStorage('columns', columns);
-
       return { columns };
-    }
-    case ColumnsTypes.GET_COLUMNS: {
-      const columns = getLocalStorage('columns');
-
-      if (columns && columns.length !== 0) {
-        return {
-          columns,
-        };
-      }
-
-      setLocalStorage('columns', state.columns);
-
-      return state;
     }
     default:
       return state;

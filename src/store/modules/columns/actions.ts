@@ -1,17 +1,12 @@
 import { action } from 'typesafe-actions';
-import {
-  Column,
-  ColumnsTypes,
-} from './types';
+import { Column } from '../../../types/Columns';
 
-export function addColumn(column: Column) {
-  return action(ColumnsTypes.ADD_COLUMN, { column });
+import { ColumnsTypes } from './types';
+
+export function addColumn() {
+  return action(ColumnsTypes.ADD_COLUMN);
 }
 
 export function deleteColumn(column: Column) {
   return action(ColumnsTypes.DELETE_COLUMN, { column });
-}
-
-export function getColumns() {
-  return action(ColumnsTypes.GET_COLUMNS);
 }

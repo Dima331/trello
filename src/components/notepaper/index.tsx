@@ -1,5 +1,12 @@
-import React, { useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, {
+  useEffect,
+  useRef,
+  useCallback,
+  useState,
+} from 'react';
+import {
+  useDispatch,
+} from 'react-redux';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
@@ -9,14 +16,13 @@ import Typography from '@material-ui/core/Typography';
 import {
   deleteNote,
   activeNote,
-  shiftLeftRightNote,
-  shiftUpDownNote,
+  removeActiveNote,
 } from '../../store/modules/notes/actions';
 import { editOpenModal } from '../../store/modules/modal/actions';
-import { Note } from '../../store/modules/notes/types';
+import { Note } from '../../types/Notes';
 import { trimText } from '../../helpers/stringHelper';
+import noteBehaviorService from '../../services/noteBehaviorService';
 
-import NotepaperSelector from './selectors';
 import useStyles from './styles';
 
 interface NoteProps {
@@ -26,102 +32,67 @@ interface NoteProps {
 const Notepaper: React.FC<NoteProps> = ({ note }: NoteProps): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const inputEl = useRef<HTMLHeadingElement>(null);
+  const inputNote = useRef<HTMLHeadingElement>(null);
 
-  const { columns, notes } = useSelector(NotepaperSelector);
+  const [hover, setHover] = useState<boolean>(false);
 
   useEffect(() => {
     if (note && note.active) {
-      if (inputEl.current) {
-        inputEl.current.focus();
+      if (inputNote.current) {
+        inputNote.current.focus();
       }
     }
   });
 
-  function deleteNoteHandler(): void {
+  const deleteNoteHandler = useCallback((): void => {
     dispatch(deleteNote(note));
-  }
+  }, [note]);
 
-  const editNoteHandler = (event: React.MouseEvent<HTMLButtonElement>, id: number): void => {
+  const editNoteHandler = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    dispatch(activeNote(id));
+    dispatch(activeNote(note.id));
     dispatch(editOpenModal(note));
-  };
+  }, [note]);
 
-  const focuseNote = (id: number): void => {
-    dispatch(activeNote(id));
-  };
+  const focuseNote = useCallback((): void => {
+    dispatch(activeNote(note.id));
+  }, [note]);
 
-  const enterNote = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+  const blurHandler = useCallback((): void => {
+    dispatch(removeActiveNote());
+  }, []);
+
+  const enterNoteHandler = (event: React.KeyboardEvent<HTMLDivElement>): void => {
     event.preventDefault();
 
-    if (event.key === 'Enter') {
-      dispatch(editOpenModal(note));
-    }
+    noteBehaviorService.handleKeyPress(event.key, note);
+    setHover(false);
+  };
 
-    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-      let columnId: number | null = null;
+  const toggleHoverHandler = useCallback((): void => {
+    setHover((prev) => !prev);
+  }, []);
 
-      columns.forEach((column, index) => {
-        if (column.id === note.columnId) {
-          if (event.key === 'ArrowLeft') {
-            if (!columns[index - 1]) {
-              return;
-            }
-
-            columnId = columns[index - 1].id;
-          }
-
-          if (event.key === 'ArrowRight') {
-            if (!columns[index + 1]) {
-              return;
-            }
-
-            columnId = columns[index + 1].id;
-          }
-        }
-      });
-
-      if (columnId) {
-        dispatch(shiftLeftRightNote(note, columnId));
-      }
-    }
-
-    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      const columnOneId = notes.filter((noteItem) => {
-        if (noteItem.columnId === note.columnId) {
-          return true;
-        }
-        return false;
-      });
-
-      if (event.key === 'ArrowUp') {
-        if (columnOneId[0].id === note.id) {
-          return;
-        }
-      }
-
-      if (event.key === 'ArrowDown') {
-        if (columnOneId[columnOneId.length - 1].id === note.id) {
-          return;
-        }
-      }
-
-      let changeIndex: number = 0;
-
-      columnOneId.forEach((noteItem, index) => {
-        if (noteItem.id === note.id) {
-          changeIndex = index;
-        }
-      });
-
-      if (event.key === 'ArrowUp') {
-        dispatch(shiftUpDownNote(note, columnOneId[changeIndex - 1]));
-      }
-
-      if (event.key === 'ArrowDown') {
-        dispatch(shiftUpDownNote(note, columnOneId[changeIndex + 1]));
-      }
+  const renderButton = () => {
+    if (hover) {
+      return (
+        <CardActions>
+          <Button
+            size="small"
+            color="primary"
+            onClick={editNoteHandler}
+          >
+            Edit
+          </Button>
+          <Button
+            size="small"
+            color="primary"
+            onClick={deleteNoteHandler}
+          >
+            Delete
+          </Button>
+        </CardActions>
+      );
     }
   };
 
@@ -129,13 +100,16 @@ const Notepaper: React.FC<NoteProps> = ({ note }: NoteProps): React.ReactElement
     <Card
       className={classes.card}
       style={{ backgroundColor: note.color }}
+      onMouseEnter={toggleHoverHandler}
+      onMouseLeave={toggleHoverHandler}
     >
       <div
-        className={note.active ? classes.focus : undefined}
-        onClick={() => focuseNote(note.id)}
-        onKeyDown={(event) => enterNote(event)}
-        ref={inputEl}
+        className={note.active ? classes.focus : classes.notFocus}
+        onClick={focuseNote}
+        onKeyDown={(event) => enterNoteHandler(event)}
+        ref={inputNote}
         tabIndex={0}
+        onBlur={blurHandler}
       >
         <CardContent>
           <Typography gutterBottom variant="h5" component="h2">
@@ -145,22 +119,7 @@ const Notepaper: React.FC<NoteProps> = ({ note }: NoteProps): React.ReactElement
             {trimText(note.description)}
           </Typography>
         </CardContent>
-        <CardActions>
-          <Button
-            size="small"
-            color="primary"
-            onClick={(event) => editNoteHandler(event, note.id)}
-          >
-            Edit
-          </Button>
-          <Button
-            size="small"
-            color="primary"
-            onClick={() => deleteNoteHandler()}
-          >
-            Delete
-          </Button>
-        </CardActions>
+        {renderButton()}
       </div>
     </Card>
   );

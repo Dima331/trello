@@ -4,28 +4,22 @@ import {
   ModalTypes,
 } from './types';
 
-export interface ModalType {
+export interface ModalState {
   isModalOpen?: boolean;
   note?: Note;
   columnId?: number;
 }
 
-const initialState: ModalType = {
+const initialState: ModalState = {
   isModalOpen: false,
-  note: {
-    id: 0,
-    title: '',
-    description: '',
-    columnId: 1,
-    color: '',
-  },
+  note: {} as Note,
   columnId: undefined,
 };
 
-export default function notesReducer(
+export default function modalReducer(
   state = initialState,
   action: ModalActions,
-): ModalType {
+): ModalState {
   switch (action.type) {
     case ModalTypes.EDIT_OPEN_MODAL:
       return {

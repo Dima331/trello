@@ -1,16 +1,22 @@
-export function setLocalStorage(name: string, value: object) {
-  const json = JSON.stringify(value);
-  localStorage.setItem(name, json);
-}
+import { StoreState } from '../store/modules/combineReducers';
 
-export function getLocalStorage(name: string): [] | null {
-  const json = localStorage.getItem(name);
+export const loadState = (): StoreState | undefined => {
+  const json = (localStorage.getItem('state'));
 
-  if (json) {
-    const jsonParse = JSON.parse(json);
-
-    return jsonParse;
+  if (!json) {
+    return;
   }
 
-  return null;
-}
+  const state = JSON.parse(json);
+
+  state.group.future = [];
+  state.group.past = [];
+
+  return state;
+};
+
+export const saveState = (state: StoreState): void => {
+  const json = JSON.stringify(state);
+
+  localStorage.setItem('state', json);
+};

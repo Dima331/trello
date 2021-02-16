@@ -20,12 +20,12 @@ const Form: React.FC = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
-  const [colors] = useState<string[]>(['red', 'green', 'blue']);
+  const [colors] = useState<string[]>(['red', 'green', 'blue']); // config form
   const [activColor, setActivColor] = useState<string>(colors[0]);
   const [description, setDescription] = useState<string>('test');
   const [title, setTitle] = useState<string>('test');
 
-  const { notes, note, columnId } = useSelector(FormSelector);
+  const { note, columnId } = useSelector(FormSelector);
 
   useEffect(() => {
     if (note && note?.id !== 0) {
@@ -35,26 +35,12 @@ const Form: React.FC = (): React.ReactElement => {
     }
   }, [note]);
 
-  const getLastId = useCallback((): number => {
-    let maxId = 1;
-
-    notes.forEach((noteItem) => {
-      if (noteItem.id > maxId) {
-        maxId = noteItem.id;
-      }
-    });
-
-    maxId += 1;
-
-    return maxId;
-  }, [notes]);
-
   const addNote = useCallback((): void => {
     if (columnId) {
       dispatch(closeModal());
       dispatch(
         createNote({
-          id: getLastId(),
+          id: 1,
           title,
           description,
           columnId,
@@ -105,6 +91,7 @@ const Form: React.FC = (): React.ReactElement => {
         </Button>
       );
     }
+
     return (
       <Button
         onClick={addNote}

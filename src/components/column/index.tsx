@@ -27,23 +27,19 @@ const Column: React.FC<ColumnProps> = ({
   }, [dispatch, columnId]);
 
   const renderNotes = useCallback(() => {
-    if (notes) {
-      return notes
-        .filter((note) => note.columnId === columnId)
-        .map((note) => (
-          <Notepaper
-            key={note.id}
-            note={note}
-          />
-        ));
-    }
-
-    return null;
+    return notes
+      .filter((note) => note.columnId === columnId)
+      .map((note) => (
+        <Notepaper
+          key={note.id}
+          note={note}
+        />
+      ));
   }, [notes, columnId]);
 
-  const openHandler = (): void => {
+  const openHandler = useCallback((): void => {
     dispatch(addNoteModal(columnId));
-  };
+  }, [columnId]);
 
   return (
     <div className={classes.columnContainer}>
@@ -52,7 +48,7 @@ const Column: React.FC<ColumnProps> = ({
         <Button
           size="small"
           color="primary"
-          onClick={() => openHandler()}
+          onClick={openHandler} //
         >
           Add note
         </Button>

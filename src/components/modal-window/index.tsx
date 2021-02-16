@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
@@ -6,6 +6,9 @@ import Fade from '@material-ui/core/Fade';
 
 import { closeModal } from '../../store/modules/modal/actions';
 import Form from '../form';
+import {
+  removeActiveNote,
+} from '../../store/modules/notes/actions';
 
 import ModalWindowSelector from './selectors';
 import useStyles from './styles';
@@ -18,9 +21,10 @@ const ModalWindow: React.FC = (): React.ReactElement => {
 
   const { isModalOpen } = useSelector(ModalWindowSelector);
 
-  const closeHandler = (): void => {
+  const closeHandler = useCallback((): void => {
     dispatch(closeModal());
-  };
+    dispatch(removeActiveNote());
+  }, []);
 
   return (
     <div>

@@ -13,6 +13,11 @@ const useStyles = makeStyles({
       border: '4px solid #000',
     },
   },
+  notFocus: {
+    '&:focus': {
+      outline: 'none',
+    },
+  },
 });
 
 export default useStyles;

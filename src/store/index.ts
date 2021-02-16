@@ -1,8 +1,14 @@
-import { createStore, compose, applyMiddleware } from 'redux';
+import { createStore } from 'redux';
 
 import reducer from './modules/combineReducers';
-import { ColumnsMiddleware } from './modules/columns/middleware';
+import { loadState, saveState } from '../helpers/localStorageHelper';
 
-const store = createStore(reducer, applyMiddleware(ColumnsMiddleware));
+const persistedState = loadState();
+
+const store = createStore(reducer, persistedState);
+
+store.subscribe(() => {
+  saveState(store.getState());
+});
 
 export default store;

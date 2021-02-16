@@ -1,16 +1,17 @@
-import { setLocalStorage, getLocalStorage } from '../../../helpers/localStorageHelper';
+import { getLastIdNotes } from '../../../helpers/actionIdHelper';
+import { Note } from '../../../types/Notes';
 
 import {
   NotesActions,
-  Note,
   NotesTypes,
 } from './types';
 
-export interface NotesType {
+export interface NotesState {
   data: Note[];
+  isLoadingNotes?: boolean,
 }
 
-const initialState: NotesType = {
+const initialState: NotesState = {
   data: [
     {
       id: 1,
@@ -21,14 +22,18 @@ const initialState: NotesType = {
       active: false,
     },
   ],
+  isLoadingNotes: true,
 };
 
 export default function notesReducer(
   state = initialState,
   action: NotesActions,
-): NotesType {
+): NotesState {
   switch (action.type) {
-    case NotesTypes.CREATE_NOTE:
+    case NotesTypes.CREATE_NOTE: {
+      const lastId = getLastIdNotes(state.data);
+
+      action.payload.note.id = lastId;
 
       state.data.forEach((note) => {
         note.active = false;
@@ -36,16 +41,17 @@ export default function notesReducer(
         return note;
       });
 
-      setLocalStorage('notes', [...state.data, action.payload.note]);
-
       return {
         data: [...state.data, action.payload.note],
       };
+    }
     case NotesTypes.UPDATE_NOTE: {
       const data = state.data.map((note) => {
         note.active = false;
 
         if (note.id === action.payload.note.id) {
+          action.payload.note.active = true;
+
           return {
             ...action.payload.note,
             columnId: note.columnId,
@@ -55,16 +61,15 @@ export default function notesReducer(
         return note;
       });
 
-      setLocalStorage('notes', data);
-
-      return { data };
+      return {
+        data,
+        isLoadingNotes: false,
+      };
     }
     case NotesTypes.DELETE_NOTE: {
       const data = state.data.filter(
         (note) => note.id !== action.payload.note.id,
       );
-
-      setLocalStorage('notes', data);
 
       return { data };
     }
@@ -73,26 +78,7 @@ export default function notesReducer(
         (note) => note.columnId !== action.payload.columnId,
       );
 
-      setLocalStorage('notes', data);
-
       return { data };
-    }
-    case NotesTypes.GET_NOTES: {
-      const notes: Note[] | null = getLocalStorage('notes');
-
-      if (notes && notes.length !== 0) {
-        const data = notes.map((note) => {
-          note.active = false;
-
-          return note;
-        });
-
-        return {
-          data,
-        };
-      }
-
-      return { data: [] };
     }
     case NotesTypes.ACTIVE_NOTE: {
       const data = state.data.map((note) => {
@@ -106,12 +92,16 @@ export default function notesReducer(
         return note;
       });
 
-      return { data };
+      return {
+        data,
+        isLoadingNotes: false,
+      };
     }
 
-    case NotesTypes.SHIFT_LEFT_RIGHT_NOTE: {
-      action.payload.note.columnId = action.payload.columnId;
-      action.payload.note.active = true;
+    case NotesTypes.HORIZONTAL_MOVING_NOTE: {
+      const activeNote = JSON.parse(JSON.stringify(action.payload.note));
+      // activeNote.active = true;
+      activeNote.columnId = action.payload.columnId;
 
       const data = state.data.filter((note) => {
         if (note.id === action.payload.note.id) {
@@ -121,12 +111,15 @@ export default function notesReducer(
         return true;
       });
 
-      setLocalStorage('notes', [...data, action.payload.note]);
+      data.push(activeNote);
 
-      return { data: [...data, action.payload.note] };
+      return {
+        data,
+        isLoadingNotes: false,
+      };
     }
 
-    case NotesTypes.SHIFT_UP_DOWN_NOTE: {
+    case NotesTypes.VERTICAL_MOVING_NOTE: {
       let firstNote: number | null = null;
       let secondNote: number | null = null;
 
@@ -144,9 +137,22 @@ export default function notesReducer(
         data[firstNote] = data.splice(secondNote, 1, data[firstNote])[0];
       }
 
-      return { data };
+      return {
+        data,
+        isLoadingNotes: false,
+      };
     }
+    case NotesTypes.REMOVE_ACTIVE_NOTE: {
+      const data = state.data.map((note) => {
+        note.active = false;
+        return note;
+      });
 
+      return {
+        data,
+        isLoadingNotes: false,
+      };
+    }
     default:
       return state;
   }
