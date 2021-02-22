@@ -1,17 +1,19 @@
 import { Selector, createStructuredSelector } from 'reselect';
 import { StoreState } from '../../store/modules/combineReducers';
 
-interface StepsSelectorProps {
+interface NavbarSelectorProps {
   pastLength: number;
   futureLength: number;
 }
 
-const pastSelector: Selector<StoreState, number> = (state) => state?.group?.past.length || 0;
-const futureSelector: Selector<StoreState, number> = (state) => state?.group?.future.length || 0;
+const pastLengthSelector: Selector<StoreState, number> =
+  (state) => state?.column?.past.length || 0;
+const futureLengthSelector: Selector<StoreState, number> =
+  (state) => state?.column?.future.length || 0;
 
-const StepsSelector = createStructuredSelector<StoreState, StepsSelectorProps>({
-  pastLength: pastSelector,
-  futureLength: futureSelector,
+const NavbarSelector = createStructuredSelector<StoreState, NavbarSelectorProps>({
+  pastLength: pastLengthSelector,
+  futureLength: futureLengthSelector,
 });
 
-export default StepsSelector;
+export default NavbarSelector;

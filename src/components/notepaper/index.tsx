@@ -4,21 +4,20 @@ import React, {
   useCallback,
   useState,
 } from 'react';
-import {
-  useDispatch,
-} from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import { Draggable } from 'react-beautiful-dnd';
 
+import { editOpenModal } from '../../store/modules/modal/actions';
 import {
-  deleteNote,
+  deleteInColumn,
   activeNote,
   removeActiveNote,
-} from '../../store/modules/notes/actions';
-import { editOpenModal } from '../../store/modules/modal/actions';
+} from '../../store/modules/columns/actions';
 import { Note } from '../../types/Notes';
 import { trimText } from '../../helpers/stringHelper';
 import noteBehaviorService from '../../services/noteBehaviorService';
@@ -27,16 +26,22 @@ import useStyles from './styles';
 
 interface NoteProps {
   note: Note;
+  columnId: number;
+  index: number;
 }
 
-const Notepaper: React.FC<NoteProps> = ({ note }: NoteProps): React.ReactElement => {
+const Notepaper: React.FC<NoteProps> = ({
+  note,
+  columnId,
+  index,
+}: NoteProps): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const inputNote = useRef<HTMLHeadingElement>(null);
 
   const [hover, setHover] = useState<boolean>(false);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (note && note.active) {
       if (inputNote.current) {
         inputNote.current.focus();
@@ -45,35 +50,38 @@ const Notepaper: React.FC<NoteProps> = ({ note }: NoteProps): React.ReactElement
   });
 
   const deleteNoteHandler = useCallback((): void => {
-    dispatch(deleteNote(note));
+    dispatch(deleteInColumn(columnId, note.id));
   }, [note]);
 
-  const editNoteHandler = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
+  const editNoteHandler = useCallback((event: React.MouseEvent<HTMLButtonElement>): void => {
     event.preventDefault();
-    dispatch(activeNote(note.id));
-    dispatch(editOpenModal(note));
+    dispatch(editOpenModal(columnId, note));
+  }, [note, columnId]);
+
+  const focusNoteHanlder = useCallback((): void => {
+    dispatch(activeNote(columnId, note.id));
   }, [note]);
 
-  const focuseNote = useCallback((): void => {
-    dispatch(activeNote(note.id));
-  }, [note]);
-
-  const blurHandler = useCallback((): void => {
+  const blurNoteHandler = useCallback((): void => {
     dispatch(removeActiveNote());
   }, []);
 
-  const enterNoteHandler = (event: React.KeyboardEvent<HTMLDivElement>): void => {
+  const enterNoteHandler = useCallback((event: React.KeyboardEvent<HTMLDivElement>): void => {
     event.preventDefault();
 
-    noteBehaviorService.handleKeyPress(event.key, note);
+    noteBehaviorService.handleKeyPress(event.keyCode, note, columnId);
     setHover(false);
-  };
+  }, [note, columnId]);
 
-  const toggleHoverHandler = useCallback((): void => {
-    setHover((prev) => !prev);
+  const upHoverHandler = useCallback((): void => {
+    setHover(true);
   }, []);
 
-  const renderButton = () => {
+  const downHoverHandler = useCallback((): void => {
+    setHover(false);
+  }, []);
+
+  const renderControls = useCallback((): JSX.Element => {
     if (hover) {
       return (
         <CardActions>
@@ -94,34 +102,55 @@ const Notepaper: React.FC<NoteProps> = ({ note }: NoteProps): React.ReactElement
         </CardActions>
       );
     }
-  };
+
+    return (
+      <div style={{ height: '46px' }} />
+    );
+  }, [hover]);
 
   return (
-    <Card
-      className={classes.card}
-      style={{ backgroundColor: note.color }}
-      onMouseEnter={toggleHoverHandler}
-      onMouseLeave={toggleHoverHandler}
+    <Draggable
+      key={note.id}
+      draggableId={String(note.id)}
+      index={index}
     >
-      <div
-        className={note.active ? classes.focus : classes.notFocus}
-        onClick={focuseNote}
-        onKeyDown={(event) => enterNoteHandler(event)}
-        ref={inputNote}
-        tabIndex={0}
-        onBlur={blurHandler}
-      >
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="h2">
-            {note.title}
-          </Typography>
-          <Typography variant="body2" color="textSecondary" component="p">
-            {trimText(note.description)}
-          </Typography>
-        </CardContent>
-        {renderButton()}
-      </div>
-    </Card>
+      {(provided) => {
+        return (
+          <div
+            aria-hidden="true"
+            ref={provided.innerRef}
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+          >
+            <Card
+              className={classes.card}
+              style={{ backgroundColor: note.color }}
+              onMouseEnter={upHoverHandler}
+              onMouseLeave={downHoverHandler}
+            >
+              <div
+                className={note.active ? classes.focus : classes.notFocus}
+                onClick={focusNoteHanlder}
+                onKeyDown={enterNoteHandler}
+                ref={inputNote}
+                tabIndex={0}
+                onBlur={blurNoteHandler}
+              >
+                <CardContent>
+                  <Typography gutterBottom variant="h5" component="h2">
+                    {note.title}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="p">
+                    {trimText(note.description)}
+                  </Typography>
+                </CardContent>
+                {renderControls()}
+              </div>
+            </Card>
+          </div>
+        );
+      }}
+    </Draggable>
   );
 };
 

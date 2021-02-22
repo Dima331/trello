@@ -8,10 +8,12 @@ import InputLabel from '@material-ui/core/InputLabel';
 import NativeSelect from '@material-ui/core/NativeSelect';
 
 import {
-  createNote,
+  addToColumn,
   updateNote,
-} from '../../store/modules/notes/actions';
+} from '../../store/modules/columns/actions';
 import { closeModal } from '../../store/modules/modal/actions';
+import { getLastIdNotes } from '../../helpers/actionIdHelper';
+import colorsConfig from '../../config/colors';
 
 import FormSelector from './selectors';
 import useStyles from './styles';
@@ -20,15 +22,19 @@ const Form: React.FC = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
-  const [colors] = useState<string[]>(['red', 'green', 'blue']); // config form
+  const [colors] = useState<string[]>(colorsConfig);
   const [activColor, setActivColor] = useState<string>(colors[0]);
-  const [description, setDescription] = useState<string>('test');
-  const [title, setTitle] = useState<string>('test');
+  const [description, setDescription] = useState<string>('');
+  const [title, setTitle] = useState<string>('');
 
-  const { note, columnId } = useSelector(FormSelector);
+  const {
+    note,
+    columnId,
+    columns,
+  } = useSelector(FormSelector);
 
-  useEffect(() => {
-    if (note && note?.id !== 0) {
+  useEffect((): void => {
+    if (note) {
       setTitle(note.title);
       setDescription(note.description);
       setActivColor(note.color);
@@ -36,48 +42,46 @@ const Form: React.FC = (): React.ReactElement => {
   }, [note]);
 
   const addNote = useCallback((): void => {
-    if (columnId) {
-      dispatch(closeModal());
-      dispatch(
-        createNote({
-          id: 1,
-          title,
-          description,
-          columnId,
-          color: activColor,
-          active: false,
-        }),
-      );
-    }
+    const lastId = getLastIdNotes(columns);
+
+    dispatch(closeModal());
+    dispatch(addToColumn(columnId!,
+      {
+        id: lastId,
+        title,
+        description,
+        color: activColor,
+      }));
   }, [title, description, columnId, activColor]);
 
   const editNote = useCallback((): void => {
-    if (note) {
+    if (note && columnId) {
       dispatch(closeModal());
       dispatch(
-        updateNote({
-          id: note.id,
-          title,
-          description,
-          color: activColor,
-          active: false,
-        }),
+        updateNote(columnId,
+          {
+            id: note.id,
+            title,
+            description,
+            color: activColor,
+            active: true,
+          }),
       );
     }
-  }, [title, description, columnId, activColor]);
+  }, [note, title, description, columnId, activColor]);
 
-  const renderColors = useCallback(() => (
-    colors.map((color) => (
+  const renderColors = useCallback((): JSX.Element[] => {
+    return colors.map((color) => (
       <option
         key={color}
         value={color}
       >
         {color}
       </option>
-    ))
-  ), [colors]);
+    ));
+  }, [colors]);
 
-  const renderButton = () => {
+  const renderControls = (): JSX.Element => {
     if (note) {
       return (
         <Button
@@ -143,7 +147,7 @@ const Form: React.FC = (): React.ReactElement => {
               {renderColors()}
             </NativeSelect>
           </FormControl>
-          {renderButton()}
+          {renderControls()}
         </form>
       </div>
     </Container>

@@ -1,15 +1,15 @@
 import React from 'react';
 
 import Navbar from '../navbar';
-import DashBoard from '../dash-board';
+import Dashboard from '../dashboard';
 import ModalWindow from '../modal-window';
 
 const App: React.FC = (): React.ReactElement => (
-  <div>
+  <>
     <Navbar />
-    <DashBoard />
+    <Dashboard />
     <ModalWindow />
-  </div>
+  </>
 );
 
 export default App;

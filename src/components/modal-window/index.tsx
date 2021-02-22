@@ -6,9 +6,6 @@ import Fade from '@material-ui/core/Fade';
 
 import { closeModal } from '../../store/modules/modal/actions';
 import Form from '../form';
-import {
-  removeActiveNote,
-} from '../../store/modules/notes/actions';
 
 import ModalWindowSelector from './selectors';
 import useStyles from './styles';
@@ -23,11 +20,10 @@ const ModalWindow: React.FC = (): React.ReactElement => {
 
   const closeHandler = useCallback((): void => {
     dispatch(closeModal());
-    dispatch(removeActiveNote());
   }, []);
 
   return (
-    <div>
+    <>
       {isModalOpen && (
         <Modal
           aria-labelledby="transition-modal-title"
@@ -48,7 +44,7 @@ const ModalWindow: React.FC = (): React.ReactElement => {
           </Fade>
         </Modal>
       )}
-    </div>
+    </>
   );
 };
 

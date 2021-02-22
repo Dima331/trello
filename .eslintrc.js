@@ -21,5 +21,14 @@ module.exports = {
     ['prefer-destructuring']: "off",
     ['no-param-reassign']: "off",
     ['import/prefer-default-export']: "off",
+
+    ['react/jsx-props-no-spreading']: "off",
+    ['@typescript-eslint/no-shadow']: "off",
+    ['react/jsx-props-no-spreading']: "off",
+    ['arrow-parens']: "off",
+    ['no-useless-computed-key']: "off",
+    
+    ['operator-linebreak']: "off",
+    ['@typescript-eslint/no-unused-vars']: "off",
   }
 };

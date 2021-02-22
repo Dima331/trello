@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useMemo } from 'react';
+import { ActionCreators as UndoActionCreators } from 'redux-undo';
 import { useDispatch, useSelector } from 'react-redux';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -11,46 +12,40 @@ import ListItemText from '@material-ui/core/ListItemText';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import Button from '@material-ui/core/Button';
-import { ActionCreators as UndoActionCreators } from 'redux-undo';
 
-import { changeImage } from '../../store/modules/cover/actions';
+import { changeImage } from '../../store/modules/background/actions';
+import { ImageType } from '../../types/Images';
 import images from '../../config/images';
-import historyBehaviorService from '../../services/historyBehaviorService';
+import historyService from '../../services/historyService';
 
 import useStyles from './styles';
-import StepsSelector from './selectors';
-
-interface ImageType {
-  id: number,
-  title: string,
-  path: string,
-}
+import NavbarSelector from './selectors';
 
 const Navbar: React.FC = (): React.ReactElement => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
-  const { pastLength, futureLength } = useSelector(StepsSelector);
+  const { pastLength, futureLength } = useSelector(NavbarSelector);
 
-  const [isOpenMenu, setIsOpenMenu] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const clickListHandler = useCallback((event: React.MouseEvent<HTMLElement>): void => {
-    setIsOpenMenu(event.currentTarget);
+    setAnchorEl(event.currentTarget);
   }, []);
 
-  const clickMenuHandler = (image: ImageType) => {
+  const clickMenuHandler = useCallback((image: ImageType): void => {
     if (image) {
       dispatch(changeImage(image.id));
     }
 
-    setIsOpenMenu(null);
-  };
-
-  const closeHandler = useCallback((): void => {
-    setIsOpenMenu(null);
+    setAnchorEl(null);
   }, []);
 
-  const pverStepHandler = useCallback((): void => {
+  const closeHandler = useCallback((): void => {
+    setAnchorEl(null);
+  }, []);
+
+  const prevStepHandler = useCallback((): void => {
     dispatch(UndoActionCreators.undo());
   }, []);
 
@@ -58,17 +53,80 @@ const Navbar: React.FC = (): React.ReactElement => {
     dispatch(UndoActionCreators.redo());
   }, []);
 
-  const isPrevDisabled = useMemo((): boolean => (
-    pastLength <= 0
-  ), [pastLength]);
+  const isPrevDisabled = useMemo((): boolean => {
+    return pastLength <= 0;
+  }, [pastLength]);
 
-  const isFutureDisabled = useMemo((): boolean => (
-    futureLength <= 0
-  ), [futureLength]);
+  const isFutureDisabled = useMemo((): boolean => {
+    return futureLength <= 0;
+  }, [futureLength]);
 
   const historyHandler = useCallback((event: KeyboardEvent): void => {
-    historyBehaviorService.handleKeyPress(event.ctrlKey, event.keyCode);
+    historyService.keyPressHandle(event);
   }, []);
+
+  const renderHistoryControls = useCallback((): JSX.Element => {
+    return (
+      <>
+        <Button
+          variant="contained"
+          color="secondary"
+          disabled={isPrevDisabled}
+          onClick={prevStepHandler}
+        >
+          Prev
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={nextStepHandler}
+          disabled={isFutureDisabled}
+        >
+          Next
+        </Button>
+      </>
+    );
+  }, [isPrevDisabled, isFutureDisabled]);
+
+  const renderImages = useCallback(() => {
+    return (
+      images.map((image) => (
+        <MenuItem
+          key={image.id}
+          onClick={() => clickMenuHandler(image)}
+        >
+          <img src={image.path} title={image.title} alt={image.title} width="400" height="150" />
+        </MenuItem>
+      ))
+    );
+  }, [images]);
+
+  const renderDropDownList = useCallback((): JSX.Element => {
+    return (
+      <>
+        <List component="nav" aria-label="Device settings">
+          <ListItem
+            button
+            aria-haspopup="true"
+            aria-controls="lock-menu"
+            aria-label="Background"
+            onClick={clickListHandler}
+          >
+            <ListItemText primary="Background" />
+          </ListItem>
+        </List>
+        <Menu
+          id="lock-menu"
+          anchorEl={anchorEl}
+          keepMounted
+          open={Boolean(anchorEl)}
+          onClose={closeHandler}
+        >
+          {renderImages()}
+        </Menu>
+      </>
+    );
+  }, [anchorEl]);
 
   useEffect(() => {
     window.addEventListener('keydown', historyHandler);
@@ -99,50 +157,9 @@ const Navbar: React.FC = (): React.ReactElement => {
             />
           </div>
           <div>
-            <List component="nav" aria-label="Device settings">
-              <ListItem
-                button
-                aria-haspopup="true"
-                aria-controls="lock-menu"
-                aria-label="Background"
-                onClick={clickListHandler}
-              >
-                <ListItemText primary="Background" />
-              </ListItem>
-            </List>
-            <Menu
-              id="lock-menu"
-              anchorEl={isOpenMenu}
-              keepMounted
-              open={Boolean(isOpenMenu)}
-              onClose={closeHandler}
-            >
-              {images.map((image) => (
-                <MenuItem
-                  key={image.id}
-                  onClick={() => clickMenuHandler(image)}
-                >
-                  <img src={image.path} title={image.title} alt={image.title} width="400" height="150" />
-                </MenuItem>
-              ))}
-            </Menu>
+            {renderDropDownList()}
           </div>
-          <Button
-            variant="contained"
-            color="secondary"
-            disabled={isPrevDisabled}
-            onClick={pverStepHandler}
-          >
-            Prev
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={nextStepHandler}
-            disabled={isFutureDisabled}
-          >
-            Next
-          </Button>
+          {renderHistoryControls()}
         </Toolbar>
       </AppBar>
     </div>

@@ -3,6 +3,5 @@ export interface Note {
 	title: string;
 	description: string;
 	color: string,
-	columnId?: number;
 	active?: boolean;
 }

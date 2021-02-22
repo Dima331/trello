@@ -1,69 +1,80 @@
 import store from '../store';
 import { editOpenModal } from '../store/modules/modal/actions';
 import { Note } from '../types/Notes';
+
 import {
   horizontalMovingNote,
-  activeNote,
   verticalMovingNote,
-} from '../store/modules/notes/actions';
-import { MovementDirection, MovementDirectionConfig } from '../constants/movement';
-import { Keys } from '../config/keys';
+} from '../store/modules/columns/actions';
+import {
+  MovementDirection,
+  MovementDirectionConfig,
+  VerticalDirections,
+  HorizontalDirections,
+} from '../constants/movement';
+import { KeysCode } from '../config/keys';
 
 class NoteBehaviorService {
-  public handleKeyPress = (key: string, note: Note) => {
+  public handleKeyPress = (key: number, note: Note, columnId: number): void => {
     switch (key) {
-      case Keys.Enter:
-        store.dispatch(activeNote(note.id));
-        store.dispatch(editOpenModal(note));
+      case KeysCode.Enter:
+        store.dispatch(editOpenModal(columnId, note));
         break;
-      case Keys.ArrowLeft:
-        this.horizontalMovingHandle(note, MovementDirection.Left);
+      case KeysCode.ArrowLeft:
+        this.horizontalMovingHandle(columnId, note, MovementDirection.Left);
         break;
-      case Keys.ArrowRight:
-        this.horizontalMovingHandle(note, MovementDirection.Right);
+      case KeysCode.ArrowRight:
+        this.horizontalMovingHandle(columnId, note, MovementDirection.Right);
         break;
-      case Keys.ArrowUp:
-        this.verticalMovingHandle(note, MovementDirection.Up);
+      case KeysCode.ArrowUp:
+        this.verticalMovingHandle(columnId, note, MovementDirection.Up);
         break;
-      case Keys.ArrowDown:
-        this.verticalMovingHandle(note, MovementDirection.Down);
+      case KeysCode.ArrowDown:
+        this.verticalMovingHandle(columnId, note, MovementDirection.Down);
         break;
       default: console.error();
     }
   };
 
-  private horizontalMovingHandle = (note: Note, movementDirection: MovementDirection) => {
-    const columns = store.getState().group.present.column.columns;
-
-    const directionConfig = MovementDirectionConfig[movementDirection];
-
-    const activeColumn = columns.find((column) => column.id === note.columnId)!;
-
-    const isMovementAvailable = directionConfig.isMovementAvailable!(activeColumn.id, columns);
+  private horizontalMovingHandle = (
+    activeColumnId: number,
+    note: Note,
+    movementDirection: MovementDirection,
+  ): void => {
+    const columns = store.getState().column.present.columns;
+    const directionConfig = MovementDirectionConfig[movementDirection] as HorizontalDirections;
+    const isMovementAvailable = directionConfig.isMovementAvailable!(activeColumnId, columns);
 
     if (!isMovementAvailable) {
       return;
     }
 
-    const newColumnId = directionConfig.getNewColumnId!(activeColumn.id, columns);
-    store.dispatch(horizontalMovingNote(note, newColumnId as number));
+    const newColumnId = directionConfig.getNewColumnId!(activeColumnId, columns);
+
+    store.dispatch(horizontalMovingNote(note, activeColumnId, newColumnId));
   };
 
-  private verticalMovingHandle = (note: Note, movementDirection: MovementDirection) => {
-    const notes = store.getState().group.present.notes.data;
-
-    const directionConfig = MovementDirectionConfig[movementDirection];
-
-    const activeNotesInColumn = notes.filter((noteItem) => noteItem.columnId === note.columnId)!;
-
-    const isMovementAvailable = directionConfig.isMovement!(activeNotesInColumn, note);
+  private verticalMovingHandle = (
+    activeColumnId: number,
+    note: Note,
+    movementDirection: MovementDirection,
+  ): void => {
+    const notesInColumn = store.getState().column.present.columns[activeColumnId - 1].notes;
+    const directionConfig = MovementDirectionConfig[movementDirection] as VerticalDirections;
+    const isMovementAvailable = directionConfig.isMovementAvailable!(notesInColumn, note);
 
     if (!isMovementAvailable) {
       return;
     }
 
-    const newNoteId = directionConfig.getNewNote!(activeNotesInColumn, note);
-    store.dispatch(verticalMovingNote(note, newNoteId as Note));
+    const indexNote = this.getIndexNote(notesInColumn, note);
+    const newNotes = directionConfig.getNotes!(notesInColumn, indexNote);
+
+    store.dispatch(verticalMovingNote(activeColumnId, newNotes));
+  };
+
+  private getIndexNote = (notes: Note[], note: Note): number => {
+    return notes.findIndex((noteItem) => noteItem.id === note.id);
   };
 }
 

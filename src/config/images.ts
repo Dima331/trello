@@ -1,8 +1,9 @@
 import sea from '../img/sea.jpg';
 import stones from '../img/stones.jpg';
 import triangles from '../img/triangles.png';
+import { ImageType } from '../types/Images';
 
-const images = [{
+const imagesConfig: ImageType[] = [{
   id: 1,
   title: 'sea',
   path: sea,
@@ -18,4 +19,4 @@ const images = [{
   path: triangles,
 }];
 
-export default images;
+export default imagesConfig;
