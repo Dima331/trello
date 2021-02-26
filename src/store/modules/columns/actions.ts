@@ -52,3 +52,7 @@ export function insertNote(
     endColumn,
   });
 }
+
+export function expiredNote(columnId: number, note: Note) {
+  return action(ColumnsTypes.EXPIRED_NOTE, { columnId, note });
+}

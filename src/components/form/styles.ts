@@ -21,6 +21,19 @@ const useStyles = makeStyles((theme) => ({
   selectEmpty: {
     marginTop: theme.spacing(2),
   },
+  image: {
+    width: '300px',
+    height: '300px',
+    backgroundSize: 'cover',
+  },
+  dropzone: {
+    textAlign: 'center',
+    padding: '20px',
+    border: '3px dashed #eeeeee',
+    backgroundColor: '#fafafa',
+    color: '#bdbdbd',
+    marginBottom: '20px',
+  },
 }));
 
 export default useStyles;

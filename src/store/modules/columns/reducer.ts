@@ -21,6 +21,9 @@ const initialState: ColumnsState = {
           description: '111',
           color: 'green',
           active: false,
+          marker: 'success',
+          date: new Date(),
+          time: true,
         },
       ],
     },
@@ -217,6 +220,31 @@ export default function columnReducer(
 
         return column;
       });
+
+      return { columns };
+    }
+    case ColumnsTypes.EXPIRED_NOTE: {
+      const columns = state.columns
+        .map((columnsItem) => {
+          if (columnsItem.id === action.payload.columnId) {
+            const notes = columnsItem.notes
+              .map((note) => {
+                if (note.id === action.payload.note.id) {
+                  note.time = true;
+                  return note;
+                }
+
+                return note;
+              });
+
+            return {
+              id: columnsItem.id,
+              notes,
+            };
+          }
+
+          return columnsItem;
+        });
 
       return { columns };
     }

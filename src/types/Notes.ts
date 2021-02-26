@@ -4,4 +4,8 @@ export interface Note {
 	description: string;
 	color: string,
 	active?: boolean;
+	marker: string;
+	date?: Date | null;
+	image?: string;
+	time?:  boolean;
 }

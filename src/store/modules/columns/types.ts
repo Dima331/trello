@@ -12,6 +12,7 @@ export enum ColumnsTypes {
   HORIZONTAL_MOVING_NOTE = '@column/HORIZONTAL_MOVING_NOTE',
   VERTICAL_MOVING_NOTE = '@column/VERTICAL_MOVING_NOTE',
   INSERT_NOTE = '@column/INSERT_NOTE',
+  EXPIRED_NOTE = '@column/EXPIRED_NOTE',
 }
 
 export type ColumnsActions = ActionType<typeof columnsActions>;

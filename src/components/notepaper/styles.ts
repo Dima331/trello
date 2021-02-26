@@ -4,6 +4,7 @@ const useStyles = makeStyles({
   card: {
     maxWidth: 345,
     marginBottom: '20px',
+    position: 'relative',
   },
   media: {
     height: 140,
@@ -17,6 +18,17 @@ const useStyles = makeStyles({
     '&:focus': {
       outline: 'none',
     },
+  },
+  mark: {
+    height: 140,
+    position: 'absolute',
+    top: '5px',
+    right: '10px',
+  },
+  image: {
+    width: '50px',
+    height: '50px',
+    backgroundSize: 'cover',
   },
 });
 

@@ -22,13 +22,13 @@ const Dashboard: React.FC = (): React.ReactElement => {
     dispatch(addColumn());
   }, []);
 
-  const onDragEnd = (result: DropResult): void => {
+  const onDragEndHandler = useCallback((result: DropResult): void => {
     noteDragService.dragEnd(result);
-  };
+  }, []);
 
   const renderColumns = useCallback((): JSX.Element => {
     return (
-      <DragDropContext onDragEnd={result => (onDragEnd(result))}>
+      <DragDropContext onDragEnd={onDragEndHandler}>
         {columns
           .map((column) => (
             <div key={column.id}>

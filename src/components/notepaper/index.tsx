@@ -17,12 +17,16 @@ import {
   deleteInColumn,
   activeNote,
   removeActiveNote,
+  expiredNote,
 } from '../../store/modules/columns/actions';
 import { Note } from '../../types/Notes';
 import { trimText } from '../../helpers/stringHelper';
+import { getFormatDate, isDateExpired } from '../../helpers/dateHelpers';
 import noteBehaviorService from '../../services/noteBehaviorService';
 
 import useStyles from './styles';
+
+const INTERVAL_CHECK_DATE = 3000;
 
 interface NoteProps {
   note: Note;
@@ -40,6 +44,19 @@ const Notepaper: React.FC<NoteProps> = ({
   const inputNote = useRef<HTMLHeadingElement>(null);
 
   const [hover, setHover] = useState<boolean>(false);
+
+  useEffect((): void => {
+    if (!note.time) {
+      const timer: ReturnType<typeof setInterval> = setInterval((): void => {
+        const expired = isDateExpired(note.date as Date);
+
+        if (expired) {
+          dispatch(expiredNote(columnId, note));
+          clearTimeout(timer);
+        }
+      }, INTERVAL_CHECK_DATE);
+    }
+  }, []);
 
   useEffect((): void => {
     if (note && note.active) {
@@ -137,12 +154,29 @@ const Notepaper: React.FC<NoteProps> = ({
                 onBlur={blurNoteHandler}
               >
                 <CardContent>
+                  <Typography
+                    component="p"
+                    className={classes.mark}
+                  >
+                    {note.marker}
+                  </Typography>
                   <Typography gutterBottom variant="h5" component="h2">
                     {note.title}
                   </Typography>
                   <Typography variant="body2" color="textSecondary" component="p">
                     {trimText(note.description)}
                   </Typography>
+                  <Typography variant="body2" color="textSecondary" component="p">
+                    {note.date && getFormatDate(note.date)}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" component="p">
+                    {note.time ? 'you don\'t have time' : 'you have time'}
+                  </Typography>
+                  {note.image && (
+                    <Typography variant="body2" color="textSecondary" component="p">
+                      <img src={note.image} alt="img" className={classes.image} />
+                    </Typography>
+                  )}
                 </CardContent>
                 {renderControls()}
               </div>
